@@ -1,80 +1,44 @@
 % ============================================================
 %  Academic Notes — slides-to-latex Chinese template
 %  Compile with: xelatex <filename>.tex
+%  Shared style lives in _common-preamble.tex.
 % ============================================================
 
 \documentclass[11pt, a4paper]{article}
 
 \usepackage[UTF8, zihao=-4, fontset=fandol]{ctex}
-\usepackage[top=2.4cm,bottom=2.4cm,left=2.1cm,right=2.1cm]{geometry}
-\usepackage{graphicx}
-\usepackage{xcolor}
-\usepackage{xurl}
-\usepackage{hyperref}
-\usepackage{amsmath, amssymb, mathtools}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{tabularx}
-\usepackage{enumitem}
-\usepackage[most]{tcolorbox}
-\usepackage{caption}
-\usepackage{subcaption}
-\usepackage{titlesec}
-\usepackage{fancyhdr}
-\usepackage{microtype}
+\input{_common-preamble.tex}
 
-\hypersetup{
-  colorlinks = true,
-  linkcolor  = blue!55!black,
-  citecolor  = green!45!black,
-  urlcolor   = cyan!65!black
-}
-
-\setlist[itemize]{leftmargin=1.4em,itemsep=0.2em,topsep=0.2em}
-\captionsetup{font=small,labelfont=bf}
-
-\titleformat{\section}
-  {\Large\bfseries\color{blue!65!black}}
-  {\thesection}{0.8em}{}[\titlerule]
-
-\titleformat{\subsection}
-  {\large\bfseries\color{blue!45!black}}
-  {\thesubsection}{0.8em}{}
-
-\pagestyle{fancy}
-\setlength{\headheight}{14pt}
+% Chinese override: course name in the running header.
 \fancyhf{}
 \lhead{\small Course Name}
 \rhead{\small Academic Lecture Notes}
 \cfoot{\thepage}
-\renewcommand{\headrulewidth}{0.4pt}
 
-\newtcolorbox{notesbox}[1]{
-  colback=gray!5,
-  colframe=gray!55!black,
-  title=#1,
-  fonttitle=\bfseries,
-  arc=2pt,
-  boxrule=0.3pt,
-  breakable
+\title{
+  Course Name\\[0.3em]
+  {\normalsize Academic Lecture Notes}
 }
+\author{由 slides-to-latex 生成}
+\date{\today}
 
-\newtcolorbox{reviewbox}[1]{
-  colback=yellow!7,
-  colframe=yellow!45!black,
-  title=#1,
-  fonttitle=\bfseries,
-  arc=2pt,
-  boxrule=0.4pt,
-  breakable
-}
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
 
-\newtcolorbox{agentbox}[1]{
-  colback=red!3,
-  colframe=red!45!black,
-  title=#1,
-  fonttitle=\bfseries,
-  arc=2pt,
-  boxrule=0.4pt,
-  breakable
-}
+\section{示例主题}
+
+\subsection*{均值方差选择}
+均值方差框架通过期望收益和方差对比组合。风险厌恶投资者在给定风险水平下偏好更高
+期望收益，在给定期望收益下偏好更低方差。
+
+\begin{equation}
+  \sigma_p^2 = w^\top \Sigma w
+\end{equation}
+
+\begin{conceptbox}{解读}
+  协方差矩阵 $\Sigma$ 决定了分散化能否降低组合总方差。
+\end{conceptbox}
+
+\end{document}

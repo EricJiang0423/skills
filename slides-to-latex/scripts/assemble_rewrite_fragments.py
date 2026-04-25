@@ -17,6 +17,8 @@ PLACEHOLDER_RE = re.compile(
     re.IGNORECASE,
 )
 
+GRAPHICS_RE = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}")
+
 LATEX_ESCAPES = {
     "\\": r"\textbackslash{}",
     "&": r"\&",
@@ -138,9 +140,75 @@ def validate_fragments(fragments_dir: Path, records: list[dict[str, Any]]) -> li
     return errors
 
 
-def assemble(fragments_dir: Path, output: Path, title: str, language: str, allow_placeholders: bool) -> int:
+def _count_keep_figures(manifest_path: Path) -> int:
+    data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    seen: set[str] = set()
+
+    def add(figure: dict[str, Any]) -> None:
+        path = figure.get("path")
+        if not path or figure.get("status") != "keep":
+            return
+        seen.add(str(path))
+
+    for figure in data.get("figures", []):
+        if isinstance(figure, dict):
+            add(figure)
+    for slide in data.get("slides", []):
+        if not isinstance(slide, dict):
+            continue
+        for figure in slide.get("figures", []):
+            if isinstance(figure, dict):
+                add(figure)
+    return len(seen)
+
+
+def _count_fragment_figures(fragments_dir: Path, records: list[dict[str, Any]]) -> int:
+    total = 0
+    for record in records:
+        path = fragments_dir / record["fragment"]
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        # Strip line comments before counting so commented-out examples don't inflate the total.
+        stripped = "\n".join(re.sub(r"(?<!\\)%.*", "", line) for line in text.splitlines())
+        total += len(GRAPHICS_RE.findall(stripped))
+    return total
+
+
+def check_figure_alignment(
+    fragments_dir: Path,
+    records: list[dict[str, Any]],
+    manifest_path: Path | None,
+) -> list[str]:
+    if manifest_path is None or not manifest_path.exists():
+        return []
+    try:
+        keep = _count_keep_figures(manifest_path)
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"Could not read manifest {manifest_path}: {exc}"]
+    actual = _count_fragment_figures(fragments_dir, records)
+    if keep != actual:
+        return [
+            "Figure count mismatch: manifest marks "
+            f"{keep} keep figure(s), fragments contain {actual} \\includegraphics. "
+            "Insert the missing figures (or correct the manifest) before assembling."
+        ]
+    return []
+
+
+def assemble(
+    fragments_dir: Path,
+    output: Path,
+    title: str,
+    language: str,
+    allow_placeholders: bool,
+    manifest_path: Path | None,
+    skip_figure_check: bool,
+) -> int:
     records = load_manifest(fragments_dir)
     errors = validate_fragments(fragments_dir, records)
+    if not skip_figure_check:
+        errors.extend(check_figure_alignment(fragments_dir, records, manifest_path))
     if errors and not allow_placeholders:
         for error in errors[:40]:
             print(f"ERROR: {error}", file=sys.stderr)
@@ -183,7 +251,25 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Assemble even when placeholder markers remain. Intended only for debugging.",
     )
+    parser.add_argument(
+        "--manifest",
+        help=(
+            "Path to manifest/content_manifest.json. Used to enforce that the "
+            "number of \\includegraphics in the fragments matches manifest 'keep' figures. "
+            "Defaults to <fragments_dir>/../manifest/content_manifest.json when present."
+        ),
+    )
+    parser.add_argument(
+        "--skip-figure-check",
+        action="store_true",
+        help="Disable the figure-count alignment check (debug only).",
+    )
     return parser.parse_args()
+
+
+def _default_manifest(fragments_dir: Path) -> Path | None:
+    candidate = fragments_dir.parent / "manifest" / "content_manifest.json"
+    return candidate if candidate.exists() else None
 
 
 def main() -> int:
@@ -191,7 +277,20 @@ def main() -> int:
     fragments_dir = Path(args.fragments_dir).expanduser().resolve()
     output = Path(args.output).expanduser().resolve()
     language = infer_language(output, args.language)
-    return assemble(fragments_dir, output, args.title, language, args.allow_placeholders)
+    manifest_path: Path | None
+    if args.manifest:
+        manifest_path = Path(args.manifest).expanduser().resolve()
+    else:
+        manifest_path = _default_manifest(fragments_dir)
+    return assemble(
+        fragments_dir,
+        output,
+        args.title,
+        language,
+        args.allow_placeholders,
+        manifest_path,
+        args.skip_figure_check,
+    )
 
 
 if __name__ == "__main__":
