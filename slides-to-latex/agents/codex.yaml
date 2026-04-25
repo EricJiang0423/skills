@@ -1,0 +1,7 @@
+interface:
+  display_name: "Slides to LaTeX"
+  short_description: "Rebuild slide decks as bilingual academic LaTeX notes"
+  default_prompt: "Use $slides-to-latex to rebuild my slide deck as academic bilingual LaTeX notes without keeping full-slide screenshots."
+
+policy:
+  allow_implicit_invocation: true

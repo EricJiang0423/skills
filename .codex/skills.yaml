@@ -1,0 +1,5 @@
+skills:
+  - name: slides-to-latex
+    path: slides-to-latex
+    agent: slides-to-latex/agents/codex.yaml
+    description: Rebuild slide decks as bilingual academic LaTeX notes

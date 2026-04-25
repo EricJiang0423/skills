@@ -1,0 +1,41 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+
+# LaTeX auxiliaries
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+missfont.log
+
+# Local Claude settings (contains machine-specific permissions)
+.claude/settings.local.json
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Output artefacts (generated at runtime)
+*-latex-output/
+*-en.pdf
+*-zh.pdf
+/tmp/

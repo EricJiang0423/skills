@@ -1,0 +1,145 @@
+% ============================================================
+%  Academic Notes — slides-to-latex English template
+%  Compile with: xelatex <filename>.tex
+% ============================================================
+
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[top=2.4cm,bottom=2.4cm,left=2.1cm,right=2.1cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage{amsmath, amssymb, mathtools}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = blue!55!black,
+  citecolor  = green!45!black,
+  urlcolor   = cyan!65!black
+}
+
+\setlist[itemize]{leftmargin=1.4em,itemsep=0.2em,topsep=0.2em}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=0.2em,topsep=0.2em}
+\captionsetup{font=small,labelfont=bf}
+\renewcommand{\contentsname}{Contents}
+\renewcommand{\figurename}{Figure}
+
+\titleformat{\section}
+  {\Large\bfseries\color{blue!65!black}}
+  {\thesection}{0.8em}{}[\titlerule]
+
+\titleformat{\subsection}
+  {\large\bfseries\color{blue!45!black}}
+  {\thesubsection}{0.8em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{black}}
+  {\thesubsubsection}{0.7em}{}
+
+\pagestyle{fancy}
+\setlength{\headheight}{14pt}
+\fancyhf{}
+\lhead{\small\leftmark}
+\rhead{\small Academic Lecture Notes}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newtcolorbox{conceptbox}[1]{
+  colback=blue!3,
+  colframe=blue!45!black,
+  title=#1,
+  fonttitle=\bfseries,
+  arc=2pt,
+  boxrule=0.4pt,
+  breakable
+}
+
+\newtcolorbox{takeawaybox}[1]{
+  colback=green!3,
+  colframe=green!40!black,
+  title=#1,
+  fonttitle=\bfseries,
+  arc=2pt,
+  boxrule=0.4pt,
+  breakable
+}
+
+\newtcolorbox{notesbox}[1]{
+  colback=gray!5,
+  colframe=gray!55!black,
+  title=#1,
+  fonttitle=\bfseries,
+  arc=2pt,
+  boxrule=0.3pt,
+  breakable
+}
+
+\newtcolorbox{reviewbox}[1]{
+  colback=yellow!7,
+  colframe=yellow!45!black,
+  title=#1,
+  fonttitle=\bfseries,
+  arc=2pt,
+  boxrule=0.4pt,
+  breakable
+}
+
+\newcommand{\academicfigure}[4]{%
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=#2\linewidth,keepaspectratio]{#1}
+    \caption{#3}
+    \label{#4}
+  \end{figure}
+}
+
+\title{
+  Course Name\\[0.3em]
+  {\normalsize Academic Lecture Notes}
+}
+\author{Generated with slides-to-latex}
+\date{\today}
+
+% %% [slides-to-latex: content-mode=academic-reconstruction]
+% %% [slides-to-latex: full-slide-images=false]
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Example Topic}
+
+\subsection*{Mean-Variance Choice}
+The mean-variance framework compares portfolios through expected return and
+variance. A risk-averse investor prefers higher expected return for a given
+level of risk and lower variance for a given expected return.
+
+\begin{equation}
+  \sigma_p^2 = w^\top \Sigma w
+\end{equation}
+
+\begin{conceptbox}{Interpretation}
+  The covariance matrix $\Sigma$ determines whether diversification reduces
+  total portfolio variance.
+\end{conceptbox}
+
+% Example retained content image:
+% \academicfigure{figures/figure-001.png}{0.72}
+%   {Mean-variance efficient frontier. Source: Week 1, slide 34.}
+%   {fig:week1-efficient-frontier}
+
+\end{document}
