@@ -13,6 +13,8 @@ trip-design **没有 HTML 模板**——每次生成时由 Claude 现场用前�
 
 旅行日记 HTML 必须包含以下五个区块。**布局、视觉、动画、文案位置**全部由 Claude 决定，但**这些区块都要有**——它们是用户对"旅行日记"的最低期望。
 
+重要：这些是功能性必备元素，不是页面结构模板。不要默认做成 `hero + 大地图 + 时间线 + 全量照片 grid`。艺术回忆页应优先由 `references/art-direction.md` 的策展结构决定；地图和时间线可以缩小为索引。
+
 ### 1. Hero 区（封面）
 
 - 全屏或半屏的视觉主图
@@ -25,6 +27,7 @@ trip-design **没有 HTML 模板**——每次生成时由 Claude 现场用前�
 - 地图容器（必须 id 或 class 让 Claude 自己的 JS 能初始化 Leaflet）
 - 全程 GPS 轨迹线（来自 `all_gps_points`）
 - 各地点标记（标记 placement 由 Claude 决定，但要点击/悬停能看见地名）
+- 地图是辅助索引，不是默认主角；地点聚类不稳定时，地图可以小型化、后置，或只显示粗路线
 
 ### 3. 时间线（按天）
 
@@ -34,6 +37,8 @@ trip-design **没有 HTML 模板**——每次生成时由 Claude 现场用前�
 - 每日叙述（`days[].narrative`）
 - 当天的地点链路（`days[].locations[].place_name` 用 `→` 或其他视觉连接）
 - 每个地点的照片网格（`days[].locations[].photos`）
+
+这里的“照片网格”不是要求均匀铺满所有照片。可以是主图、stills、film strip、局部细节栏或画册跨页。关键是每个章节的入册照片都能被打开灯箱，而不是把照片按同一尺寸罗列。
 
 ### 4. 灯箱（点开大图）
 
@@ -118,7 +123,7 @@ const TRACK = JSON.parse(document.querySelector('[data-trip-design="track"]').te
 
 ## 数据契约（diary_data.json）
 
-Claude 在 Step 6 已经回填好叙述，HTML 设计阶段直接读这个 JSON 用：
+Claude 在策展和叙述步骤已经回填好入册照片、标题、叙述与 caption，HTML 设计阶段直接读这个 JSON 用：
 
 ```json
 {

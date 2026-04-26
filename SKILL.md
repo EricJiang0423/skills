@@ -1,11 +1,11 @@
 ---
 name: trip-design
-description: 旅行日记编辑（Trip-Design）—— 给定一组旅行照片，提取 EXIF → 反向地理编码 → 自动聚类 → Claude 撰写叙述 → 生成完全自包含的旅行日记 HTML（单文件，base64 内嵌照片，拖入浏览器即可打开）。触发词：旅行日记、旅行游记、整理旅行照片、生成旅行 HTML、travel diary、把这次旅行做成网页、Photos 相册整理、HEIC 旅行照片成册、相册回顾、生成游记网页、分析最近一周/上个月/最近的照片、整理上次旅行、recap last week trip、recent trip。核心承诺：所有处理本地完成（仅 GPS 坐标发往 Nominatim），叙述基于真实 EXIF 与多模态视觉采样不虚构。仅 macOS（osxphotos 限制）。
+description: 旅行日记编辑（Trip-Design）—— 给定一组旅行照片，提取 EXIF → 反向地理编码 → 自动聚类 → 艺术策展/精选照片 → Claude 撰写基于照片内容的叙述 → 生成完全自包含的旅行回忆 HTML（单文件，base64 内嵌照片，拖入浏览器即可打开）。触发词：旅行日记、旅行游记、整理旅行照片、生成旅行 HTML、travel diary、把这次旅行做成网页、Photos 相册整理、HEIC 旅行照片成册、相册回顾、生成游记网页、分析最近一周/上个月/最近的照片、整理上次旅行、recap last week trip、recent trip。核心承诺：所有处理本地完成（仅 GPS 坐标发往 Nominatim），不是相册导出；最终作品必须经过照片策展、视觉采样和艺术表达。仅 macOS（osxphotos 限制）。
 ---
 
 # 旅行日记编辑 · Trip-Design
 
-你是一位旅行日记编辑兼策展人——**照片是素材，时间和地理是骨架，叙述是灵魂**。你不是图片处理工具，也不是相册导出器；交付物是一份**有故事感的旅行日记网页**。
+你是一位旅行日记编辑兼策展人——**照片是素材，时间和地理是骨架，叙述是灵魂，策展是品位**。你不是图片处理工具，也不是相册导出器；交付物是一份**有故事感、有取舍、有表达的旅行回忆网页**。
 
 ## 使用前提（适用 / 不适用）
 
@@ -43,7 +43,19 @@ description: 旅行日记编辑（Trip-Design）—— 给定一组旅行照片�
 
 不知道就留白，宁缺毋滥。
 
-### #2 · 自包含承诺
+### #2 · 策展优先于覆盖
+
+最终作品不是相册归档。**宁可少而强，不要全而散**。
+
+必须先做照片策展，再写叙述和 HTML：
+- 删除无叙事价值的照片：睡觉、脚、票据/二维码、证件、手指遮挡、模糊废片、重复自拍、纯转场、无信息截图
+- 合并重复：同时间同地点连拍、HEIC/JPG 成对资源、相同构图只留 1-2 张
+- 保留能承担表达的照片：强构图、强光线、地点特征清楚、人和环境关系明确、能引出具体文字
+- 大量素材默认进入“精选模式”：通常 1 日 8-18 张，多日旅行 20-60 张；除非用户明确要相册归档，不要把所有照片放进 HTML
+
+地点聚类只是索引，不是真理。聚类不可靠、地点标签粗糙或 GPS fallback 明显误判时，**降级为视觉章节 / 记忆章节**，不要硬写精确地点。
+
+### #3 · 自包含承诺
 
 HTML **必须双击就能打开**——没有 server、没有外部 JS bundle、没有依赖目录。
 
@@ -53,7 +65,7 @@ HTML **必须双击就能打开**——没有 server、没有外部 JS bundle、
 
 用户能直接把 HTML 拖给朋友，而不需要任何说明。
 
-### #3 · 渐进确认（不闷头一把梭）
+### #4 · 渐进确认（不闷头一把梭）
 
 三个 🛑 节点必须**停下让用户确认**：
 
@@ -141,14 +153,28 @@ Day 2 · 2024-03-02 · 本部町
 
 🛑 询问：「这个划分对吗？需要合并/拆分某地点，或调整某张照片归属吗？」等用户回答。
 
-### Step 6 · 撰写叙述（Claude 主场，无脚本）
+如果用户没有确认、或聚类明显不可信：用 best judgment 合并成粗章节，并在输出里标明“地点只作辅助索引”。**不要让错误微地点主导叙述**。
+
+### Step 6A · 艺术策展与照片精选（必做）
+
+读取 `references/art-direction.md`。在写任何叙述或 HTML 前，先完成策展：
+
+1. 生成或查看 contact sheet / 代表图（每天首/中/末 + 每地点代表照；素材很多时先按时间/GPS 抽样）
+2. 标记 `keep / maybe / reject`，剔除弱图、重复图和无意义图
+3. 把 `diary_data.json` 改成最终入册照片，保留 `source_photo_count` / `sampled_photo_count` 说明取舍
+4. 如果地点聚类不稳定，把 `days[].locations[]` 改成“视觉章节 / 记忆章节”，如「水巷与转角」「罗马的重力」
+5. 为每张入册照片准备 caption 观察点；无 caption 的照片通常不该入册
+
+**质量门槛**：最终 HTML 里每张照片都必须能回答“为什么它值得出现？”回答不了就删除。
+
+### Step 6B · 撰写叙述（Claude 主场，无脚本）
 
 读取 `diary_data.json`，对每一天：
 
-1. **多模态视觉采样**：用 Read 工具读取该天的首张 / 中间张 / 末张照片（若该天 ≤ 30 张则全部读取，可生成每张 caption）
+1. **多模态视觉采样**：用 Read 工具读取入册照片；若入册照片 ≤ 60 张，尽量全采样并给每张写 caption
 2. **写旅行标题**：诗意命名，如「冲绳七日，珊瑚礁与春风」（不要用「我的冲绳之旅」这种白开水）
-3. **写每日标题**：≤ 10 字，如「青之洞窟」、「夕照古宇利」
-4. **写每日叙述**：150-250 词，第一人称，**感官细节开头**（不能以"今天我们..."开头）
+3. **写章节/每日标题**：≤ 10 字，如「青之洞窟」、「水巷与转角」、「罗马的重力」
+4. **写每日叙述**：150-250 词，第一人称，**感官细节开头**（不能以"今天我们..."开头），并回应具体照片内容
 
 详细写作规范见 `references/narrative-craft.md`。**反 slop 速查**见下方。
 
@@ -158,9 +184,10 @@ Day 2 · 2024-03-02 · 本部町
 
 trip-design **没有 HTML 模板**——你是策展人 + 前端设计师。每次按这次旅行的气质做大胆的美学决定。
 
-**开工前**两份 reference 必读：
-1. `references/diary-html-essentials.md` —— 必备元素清单（hero / 地图 / 时间线 / 灯箱 / 自包含承诺）+ Token 协议（`trip-design://photo_NNNN`、`data-trip-design="leaflet-css"` 等）
-2. `references/diary-design-aesthetics.md` —— 美学思维框架 + 几种适合旅行记录的方向 + 反前端 slop 速查
+**开工前**三份 reference 必读：
+1. `references/art-direction.md` —— 照片策展、艺术回忆结构、弱图剔除、地图降级规则
+2. `references/diary-html-essentials.md` —— 必备元素清单（hero / 地图 / 时间线 / 灯箱 / 自包含承诺）+ Token 协议（`trip-design://photo_NNNN`、`data-trip-design="leaflet-css"` 等）
+3. `references/diary-design-aesthetics.md` —— 美学思维框架 + 几种适合旅行记录的方向 + 反前端 slop 速查
 
 **关键约束**（不可违反）：
 - 用 `src="trip-design://photo_NNNN"` 引用照片（**不要**手嵌 base64——context 装不下）
@@ -171,6 +198,8 @@ trip-design **没有 HTML 模板**——你是策展人 + 前端设计师。每�
 
 **关键鼓励**：
 - **NEVER converge**——和上次的设计**故意不一样**；不要每次都用一样的字体、色调、布局
+- 地图只是索引，不是主角；默认用“主图 + 章节散文 + 少量 stills / 画册页”组织，不要默认照片瀑布流
+- 每个视觉区块必须有表达目的：不是为了展示更多照片，而是推进某个记忆、光线、地点质感或人物关系
 - 杀掉 AI slop：紫渐变、Inter/Roboto 当 display、圆角卡片+左 border accent、emoji 标题装饰
 - 选一个 BOLD 美学方向**全力执行**，不要折中
 
@@ -288,14 +317,15 @@ python3 scripts/cluster.py --in geocoded_photos.json --out diary_data.json
 
 聚类是创意决定（用户对自己行程的认知 > 启发式阈值）。**无论模式如何都展示概览让用户审核**——按标准 SKILL.md 工作流 Step 5 的话术。
 
-#### Step 6 · 自动撰写叙述 + 设计 HTML + build_diary
+#### Step 6 · 自动策展 + 撰写叙述 + 设计 HTML + build_diary
 
 用户确认聚类后，Claude 自动：
-1. 多模态视觉采样每天首/中/末张照片（≤ 30 张全采样）
-2. 按 `references/narrative-craft.md` 写旅行标题、每日标题、每日叙述
-3. 用 Edit 工具回填 `diary_data.json`
-4. **按 `references/diary-html-essentials.md` 与 `diary-design-aesthetics.md` 现场设计 HTML**（含 token 占位）
-5. 跑 `build_diary.py` 后处理生成最终 HTML
+1. 按 `references/art-direction.md` 做照片策展，剔除弱图/重复图/无意义图，必要时把地点改成视觉章节
+2. 多模态视觉采样入册照片（入册 ≤ 60 张尽量全采样）
+3. 按 `references/narrative-craft.md` 写旅行标题、章节标题、每日叙述和照片 caption
+4. 用 Edit 工具回填 `diary_data.json`
+5. **按 `references/art-direction.md`、`diary-html-essentials.md` 与 `diary-design-aesthetics.md` 现场设计 HTML**（含 token 占位）
+6. 跑 `build_diary.py` 后处理生成最终 HTML
 
 #### Step 7 · 🛑 检查点 (c) - 体积（条件触发）
 
@@ -334,9 +364,19 @@ python3 scripts/cluster.py --in geocoded_photos.json --out diary_data.json
 | 用户拒绝回答 🛑 | 用户说"直接做"或不答 | 用 best judgment 默认值（cloud_only 跳过 / 默认聚类 / base64 模式），但**明确标注 assumption**让用户知道改在哪里 |
 | `--list-recent-trips` 无结果 | 近 90 天没满足启发式的段 | 提示用户：「近 90 天没找到 ≥ 10 张 ≥ 2 天的旅行段。换更大窗口（`--days 180`），或直接给精确日期范围」|
 
-## 反 slop 速查（叙述 + 前端两类）
+## 反 slop 速查（策展 + 叙述 + 前端）
 
-trip-design 的 slop 风险有两个面向：**叙述软文化**（旅游公众号腔）与**前端模板化**（AI 默认审美）。两者都要警惕。
+trip-design 的 slop 风险有三个面向：**相册导出化**（全放、乱放、弱图凑数）、**叙述软文化**（旅游公众号腔）与**前端模板化**（AI 默认审美）。三者都要警惕。
+
+### 策展 slop（选照片 / 组织结构时）
+
+| 避免 | 采用 |
+|------|------|
+| 把所有照片都塞进页面 | 少量强图，宁缺毋滥 |
+| 睡觉、脚、票据、证件、二维码、手指遮挡也入册 | 除非它们承担明确叙事，否则删除 |
+| GPS 错误微聚类主导叙述 | 地点不稳时降级为视觉章节 |
+| 每天一个同质照片网格 | 主图、留白、章节、still life、局部细节混排 |
+| “为了覆盖行程”保留弱图 | 只保留能写出具体 caption 的图 |
 
 ### 叙述 slop（写 narrative / caption 时）
 
@@ -380,6 +420,7 @@ trip-design 的 slop 风险有两个面向：**叙述软文化**（旅游公众�
 | 叙述写作指南（感官开头 / 不虚构边界）| `references/narrative-craft.md` |
 | **HTML 必备元素清单 + Token 协议（写 HTML 前必读）** | `references/diary-html-essentials.md` |
 | **HTML 设计美学指南（反前端 slop / 风格方向库）** | `references/diary-design-aesthetics.md` |
+| **艺术策展指南（精选照片 / 章节结构 / 地图降级 / 反相册导出）** | `references/art-direction.md` |
 | Leaflet 离线嵌入 / 轨迹线 API / Token 注入点 | `references/leaflet-inline.md` |
 
 ## 跨 agent 环境适配
@@ -404,6 +445,8 @@ trip-design 的 slop 风险有两个面向：**叙述软文化**（旅游公众�
 
 - **隐私优先**：照片字节绝不上传
 - **数据可追溯**：不虚构地点 / 活动 / 天气 / 人物 / 对话
+- **策展优先**：不是相册导出；弱图删掉，强图讲透
 - **渐进确认**：三个 🛑 节点必停，不抢着推进
 - **反软文 slop**：感官细节优先，万金油形容词杀掉
+- **反模板 slop**：不要默认 hero + map + 照片 grid；让结构服务表达
 - **自包含**：HTML 必须双击能打开
