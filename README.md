@@ -21,7 +21,11 @@
         ↓
   Claude 撰写旅行标题 + 每日叙述
         ↓
-  生成自包含 HTML 单文件
+  Claude 现场设计 HTML（每次不同！没有固定模板）
+        ↓
+  build_diary.py 后处理（base64 + Leaflet 注入）
+        ↓
+  自包含 HTML 单文件
 ```
 
 输出：一个可双击打开的 `.diary.html`，含 hero 封面、地图轨迹、按天的时间线、照片 grid 与灯箱。
@@ -98,9 +102,15 @@ python3 scripts/cluster.py --in geocoded_photos.json --out diary_data.json
 # 5. （可选）手动填 diary_data.json 的 title / narrative 字段
 #    在 Claude Code 里这一步由 Claude 自动完成
 
-# 6. 生成 HTML（base64 自包含）
+# 6. （可选）手写一份 trip.diary.draft.html
+#    - 用 src="trip-design://photo_NNNN" 引用照片
+#    - 用 <style data-trip-design="leaflet-css"></style> 等留 token 占位
+#    - 在 Claude Code 里这一步由 Claude 现场设计
+#    详见 references/diary-html-essentials.md
+
+# 7. 后处理（base64 / Leaflet / JSON 注入 + 自包含验证）
 python3 scripts/build_diary.py --in diary_data.json \
-        --template assets/diary-template.html \
+        --html output/trip.diary.draft.html \
         --out output/trip.diary.html
 ```
 
@@ -117,9 +127,8 @@ trip-design/
 ├── CLAUDE.md               ← Claude Code 项目说明（指向 SKILL.md）
 ├── requirements.txt
 ├── test-prompts.json       ← 触发词回归集
-├── scripts/                ← Python 流水线
-├── assets/                 ← Jinja2 HTML 模板
-├── references/             ← 厚知识库（每个垂直主题一个 .md）
+├── scripts/                ← Python 流水线（含 build_diary.py 做 token 后处理）
+├── references/             ← 厚知识库（含 HTML 必备元素 + 美学指南）
 └── demos/                  ← 示例输出
 ```
 
@@ -131,7 +140,7 @@ trip-design/
 - **数据可追溯**：叙述基于真实 EXIF + 视觉采样，不虚构地点 / 活动 / 天气 / 人物
 - **自包含**：HTML 单文件，base64 内嵌照片，Leaflet inline，地图 tile 走 OSM CDN
 - **渐进确认**：iCloud 状态 / 行程聚类 / HTML 体积三个节点必停下让用户确认
-- **方法论 vs 风格分离**：SKILL.md 只谈方法论，视觉风格沉到 `assets/diary-template.html` 自由迭代
+- **没有 HTML 模板**：参考 [Claude Code frontend-design skill](https://github.com/anthropics/claude-code/tree/main/plugins/frontend-design/skills/frontend-design) 的范式——Claude 每次现场用前端能力设计，按 `references/diary-html-essentials.md`（必备元素 + Token 协议）+ `references/diary-design-aesthetics.md`（美学方向 + 反前端 slop）走，**每份日记的视觉指纹都不同**
 
 详细设计与踩坑记录见 `references/`。
 

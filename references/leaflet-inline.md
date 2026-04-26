@@ -43,6 +43,38 @@ trip-design 接受"看地图需联网"的限制。HTML 仍可双击打开，没�
 
 如果用户量级到了"我每周生成 100 份日记并且分享给 10000 人浏览" → OSM 不再是合适来源，应自托管 tile 或换商用服务（Mapbox / Stadia）。trip-design V1 不为这种规模设计。
 
+## Token 注入协议（写 HTML 时如何引用）
+
+trip-design 的 HTML 由 Claude 现场写、build_diary.py 后处理。Leaflet 字节不在 Claude 写 HTML 时手嵌——会爆 context。
+
+写 HTML 时**留两个空标签**作为 token：
+
+```html
+<head>
+  ...
+  <style data-trip-design="leaflet-css"></style>   <!-- ← Leaflet CSS 注入点 -->
+  ...
+</head>
+<body>
+  ...
+  <script data-trip-design="leaflet-js"></script>  <!-- ← Leaflet JS 注入点 -->
+  <script>
+    // 这里写你自己的地图初始化 JS
+    const map = L.map('overview-map');
+    L.tileLayer(...).addTo(map);
+    ...
+  </script>
+</body>
+```
+
+build_diary.py 会把这两个空标签的 textContent 填上 Leaflet 1.9.4 的 CSS / JS 字节内容。
+
+**位置硬约束**：
+- `<style data-trip-design="leaflet-css">` 必须在 `<head>` 里——否则 `.leaflet-container` 等样式来不及生效
+- `<script data-trip-design="leaflet-js">` 必须在你自己的地图初始化 JS **之前**——否则 `L` 全局变量未定义
+
+**完整说明**见 `references/diary-html-essentials.md` 的 Token 协议章节。
+
 ## 关键 API 用法
 
 ### 初始化地图 + 自适应边界

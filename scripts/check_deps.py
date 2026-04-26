@@ -12,7 +12,6 @@ PYTHON_PACKAGES = [
     ("osxphotos", "osxphotos", ">=0.68.0"),
     ("geopy", "geopy", ">=2.4.0"),
     ("PIL", "Pillow", ">=10.0.0"),
-    ("jinja2", "Jinja2", ">=3.1.0"),
 ]
 
 SYSTEM_BINARIES = [

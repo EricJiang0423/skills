@@ -1,6 +1,10 @@
 # trip-design · 产品需求文档
 
-> **实现状态（2026-04-26）**：V1 已交付。SKILL.md + scripts/（5 个）+ assets/diary-template.html + references/（7 个）+ test-prompts.json 均已落地，端到端流水线可跑通。Photos.app 「一键时间范围模式」已附加（支持相对日期 today / last-week / last-month / YYYY-MM 等 + `--list-recent-trips` 启发式发现潜在旅行段）。
+> **实现状态（2026-04-26）**：V1.2 已交付。
+>
+> - **V1.0**：SKILL.md + scripts/（5 个）+ Jinja2 template + references/（7 个）+ test-prompts.json
+> - **V1.1**：Photos.app 「一键时间范围模式」（相对日期 today / last-week / last-month / YYYY-MM 等 + `--list-recent-trips` 启发式发现潜在旅行段）
+> - **V1.2**：架构重构——**移除 HTML 模板**，改为 Claude 现场设计 + `build_diary.py` 做 token 后处理（base64 / Leaflet / JSON 注入）。新增 `references/diary-html-essentials.md`（必备元素 + Token 协议）与 `references/diary-design-aesthetics.md`（美学方向 + 反前端 slop）。设计哲学参考 [Claude Code frontend-design skill](https://github.com/anthropics/claude-code/tree/main/plugins/frontend-design/skills/frontend-design)：「NEVER converge on common choices」
 
 ## 产品概述
 
@@ -85,12 +89,18 @@ Claude 负责：
 
 **核心要求**：完全自包含，单文件，拖入浏览器即可打开
 
+**架构**（V1.2 重构）：**没有固定 HTML 模板**——Claude 每次按这次旅行的气质现场设计 HTML，`build_diary.py` 只做 token 后处理。
+
 | 特性 | 实现方式 |
 |------|---------|
-| 照片嵌入 | base64（默认，完全自包含）或相对路径（`--embed-photos relative`，体积小） |
-| 图片处理 | 缩放至 1600px 宽，HEIC 转 JPEG，quality=85 |
-| 地图 | Leaflet.js 1.9.4 inline + OpenStreetMap 底图（在线加载） |
+| HTML 设计 | Claude 现场写（按 `references/diary-html-essentials.md` 必备元素 + `diary-design-aesthetics.md` 美学指南） |
+| 照片嵌入 | Claude HTML 写 `src="trip-design://photo_NNNN"` token；后处理替换为 base64 或相对路径 |
+| Leaflet | Claude HTML 留 `<style data-trip-design="leaflet-css"></style>` 等空标签；后处理注入 1.9.4 字节 |
+| 数据注入 | Claude HTML 留 `<script type="application/json" data-trip-design="track"></script>` 等空标签；后处理注入 JSON |
+| 图片处理 | Pillow 缩放至 1600px 宽，HEIC 转 JPEG，quality=85 |
+| 地图底图 | OpenStreetMap CDN（唯一允许的在线依赖） |
 | 体积预警 | > 200MB 自动提示切换 relative 模式 |
+| 自包含验证 | 后处理脚本搜外部 src/href 引用，命中即警告（`--strict-self-contained` 改为 fail）|
 
 ---
 
@@ -129,7 +139,8 @@ Claude 负责：
 | `osxphotos >= 0.68.0` | Photos.app SQLite 直读 | `pip install osxphotos` |
 | `geopy >= 2.4.0` | Nominatim 反向地理编码 | `pip install geopy` |
 | `Pillow >= 10.0.0` | 图片缩放 + HEIC→JPEG | `pip install Pillow` |
-| `Jinja2 >= 3.1.0` | HTML 模板渲染 | `pip install Jinja2` |
+
+> V1.2 移除 `Jinja2` 依赖——HTML 由 Claude 现场写，`build_diary.py` 只做 regex token 替换。
 
 ---
 
@@ -205,15 +216,16 @@ Claude: 自动 dry-run 预检（--date-range last-week --dry-run）
 
 ---
 
-## V1 实现交付清单（2026-04-26）
+## V1.2 实现交付清单（2026-04-26）
 
 | 模块 | 文件 | 状态 |
 |------|------|------|
-| 主控文档 | `SKILL.md` | ✓ 含核心原则 #0-#3 + 标准 7 步 + 一键时间范围模式 + 异常表 + references 路由表 + 反 slop 速查 + 跨 agent 适配 |
-| 流水线 | `scripts/check_deps.py`、`extract_photos.py`、`geocode.py`、`cluster.py`、`build_diary.py` | ✓ 端到端跑通；JSON 契约稳定；合成数据验证 4 张照片 → 290 KB 自包含 HTML |
-| 模板 | `assets/diary-template.html` | ✓ Jinja2 + Leaflet inline + base64 图片 + 灯箱（←→ Esc 键盘）+ 响应式 |
-| 知识库 | `references/`（7 个 .md）| ✓ workflow / photo-pipeline / osxphotos-tips（含「按时间范围发现潜在旅行段的启发式」）/ geocoding / clustering-rules / narrative-craft / leaflet-inline |
+| 主控文档 | `SKILL.md` | ✓ 含核心原则 #0-#3 + 标准 7 步（Step 7 拆为 7a Claude 写 HTML / 7b 后处理）+ 一键时间范围模式 + 异常表 + references 路由表 + 反 slop 速查（叙述 + 前端两类）+ 跨 agent 适配 |
+| 流水线 | `scripts/check_deps.py`、`extract_photos.py`、`geocode.py`、`cluster.py`、`build_diary.py` | ✓ build_diary.py 重构为 token 后处理器（regex 替换，无 Jinja2）|
+| 知识库 | `references/`（9 个 .md）| ✓ workflow / photo-pipeline / osxphotos-tips（含「按时间范围发现潜在旅行段的启发式」）/ geocoding / clustering-rules / narrative-craft / leaflet-inline（加 Token 注入协议）/ **diary-html-essentials**（必备元素 + Token 协议）/ **diary-design-aesthetics**（美学指南，参考 frontend-design）|
 | 用户面 | `README.md`、`test-prompts.json`（12 prompts + 4 anti-prompts）、`demos/README.md` | ✓ 含触发词回归集 |
-| 项目说明 | `requirements.txt`、`.claude/CLAUDE.md` | ✓ |
+| 项目说明 | `requirements.txt`（去 Jinja2）、`.claude/CLAUDE.md` | ✓ |
+
+**已删除**（V1.2 重构）：`assets/diary-template.html`（固定模板，违背"NEVER converge"）。
 
 **待真实环境验证**：HEIC/RAW 解码（依赖 `brew install libheif` + `pip install pillow-heif`）；Photos.app 模式（需「完全磁盘访问」授权）；跨 agent dry-run（Codex / Cursor）。

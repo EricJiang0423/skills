@@ -154,18 +154,57 @@ Day 2 · 2024-03-02 · 本部町
 
 写完直接修改 `diary_data.json`（用 Edit 工具）回填 `trip_summary.title` / `days[].title` / `days[].narrative` / 可选的 `days[].locations[].photos[].caption`。
 
-### Step 7 · build_diary.py（🛑 检查点 c）
+### Step 7a · Claude 用前端能力**现场设计**HTML
+
+trip-design **没有 HTML 模板**——你是策展人 + 前端设计师。每次按这次旅行的气质做大胆的美学决定。
+
+**开工前**两份 reference 必读：
+1. `references/diary-html-essentials.md` —— 必备元素清单（hero / 地图 / 时间线 / 灯箱 / 自包含承诺）+ Token 协议（`trip-design://photo_NNNN`、`data-trip-design="leaflet-css"` 等）
+2. `references/diary-design-aesthetics.md` —— 美学思维框架 + 几种适合旅行记录的方向 + 反前端 slop 速查
+
+**关键约束**（不可违反）：
+- 用 `src="trip-design://photo_NNNN"` 引用照片（**不要**手嵌 base64——context 装不下）
+- 用 `<style data-trip-design="leaflet-css"></style>` 与 `<script data-trip-design="leaflet-js"></script>` 留 Leaflet 注入点
+- 用 `<script type="application/json" data-trip-design="photos-index"></script>` 与 `data-trip-design="track"` 留数据注入点
+- 灯箱必须支持 `←` `→` `Esc` 键盘导航
+- 自包含：HTML 里**禁止** `<script src="https://`、`<link href="https://`、`<img src="https://`
+
+**关键鼓励**：
+- **NEVER converge**——和上次的设计**故意不一样**；不要每次都用一样的字体、色调、布局
+- 杀掉 AI slop：紫渐变、Inter/Roboto 当 display、圆角卡片+左 border accent、emoji 标题装饰
+- 选一个 BOLD 美学方向**全力执行**，不要折中
+
+写完 HTML 文件保存到 `output/trip.diary.draft.html`（或任意路径），然后进入 Step 7b。
+
+### Step 7b · build_diary.py 后处理（🛑 检查点 c）
 
 ```bash
-python3 scripts/build_diary.py --in diary_data.json --template assets/diary-template.html --out output/trip.diary.html
+python3 scripts/build_diary.py \
+        --in diary_data.json \
+        --html output/trip.diary.draft.html \
+        --out output/trip.diary.html
 ```
 
-报告 HTML 路径与体积。> 200MB 时**自动建议**切 relative：
+build_diary.py **不渲染 HTML**——它只做：
+1. 替换 `trip-design://photo_NNNN` token 为 base64 data URL（或 relative 路径）
+2. 把 Leaflet 1.9.4 字节注入两个空标签
+3. 把 `photos-index` 与 `track` JSON 注入两个空 script 标签
+4. Pillow 缩放照片至 1600px、HEIC→JPEG q=85
+5. 验证自包含（搜外部 src/href 引用）
+
+🛑 报告 HTML 路径与体积。> 200MB 时**自动建议**切 relative：
 
 ```
-✓ 已生成：output/trip.diary.html（267 MB）
-⚠️ 体积较大，建议改用相对路径模式（约 1 MB HTML + 照片目录）：
-   python3 scripts/build_diary.py ... --embed-photos relative
+✓ 已生成：output/trip.diary.html（48 MB，base64 内嵌 100 张照片）
+   token 替换：100/100  ·  注入点全到位  ·  自包含 ✓
+```
+
+体积大时：
+
+```
+⚠ HTML 体积 267 MB 超过 200 MB 阈值。
+  建议改用相对路径模式：
+  python3 scripts/build_diary.py ... --embed-photos relative
 要切换吗？
 ```
 
@@ -249,13 +288,14 @@ python3 scripts/cluster.py --in geocoded_photos.json --out diary_data.json
 
 聚类是创意决定（用户对自己行程的认知 > 启发式阈值）。**无论模式如何都展示概览让用户审核**——按标准 SKILL.md 工作流 Step 5 的话术。
 
-#### Step 6 · 自动撰写叙述 + build_diary
+#### Step 6 · 自动撰写叙述 + 设计 HTML + build_diary
 
 用户确认聚类后，Claude 自动：
 1. 多模态视觉采样每天首/中/末张照片（≤ 30 张全采样）
 2. 按 `references/narrative-craft.md` 写旅行标题、每日标题、每日叙述
 3. 用 Edit 工具回填 `diary_data.json`
-4. 跑 `build_diary.py` 生成 HTML
+4. **按 `references/diary-html-essentials.md` 与 `diary-design-aesthetics.md` 现场设计 HTML**（含 token 占位）
+5. 跑 `build_diary.py` 后处理生成最终 HTML
 
 #### Step 7 · 🛑 检查点 (c) - 体积（条件触发）
 
@@ -294,9 +334,11 @@ python3 scripts/cluster.py --in geocoded_photos.json --out diary_data.json
 | 用户拒绝回答 🛑 | 用户说"直接做"或不答 | 用 best judgment 默认值（cloud_only 跳过 / 默认聚类 / base64 模式），但**明确标注 assumption**让用户知道改在哪里 |
 | `--list-recent-trips` 无结果 | 近 90 天没满足启发式的段 | 提示用户：「近 90 天没找到 ≥ 10 张 ≥ 2 天的旅行段。换更大窗口（`--days 180`），或直接给精确日期范围」|
 
-## 反 "AI 旅游软文 slop" 速查
+## 反 slop 速查（叙述 + 前端两类）
 
-叙述写作最容易掉进 AI 通用语料的"旅游公众号"腔调。每写一段先自检：
+trip-design 的 slop 风险有两个面向：**叙述软文化**（旅游公众号腔）与**前端模板化**（AI 默认审美）。两者都要警惕。
+
+### 叙述 slop（写 narrative / caption 时）
 
 | 避免 | 采用 |
 |------|------|
@@ -308,7 +350,21 @@ python3 scripts/cluster.py --in geocoded_photos.json --out diary_data.json
 | 配 emoji 装饰每段标题 | 标题独立成立，不靠 emoji |
 | 排比句堆砌（「这里有...这里有...这里有...」）| 节奏变化，长短句交错 |
 
-详细写作指南见 `references/narrative-craft.md`。
+详见 `references/narrative-craft.md`。
+
+### 前端 slop（写 HTML 时）
+
+| 避免 | 采用 |
+|------|------|
+| 紫渐变背景（135deg, #667eea, #764ba2 之类）| 从首张照片"取色"做 accent |
+| Inter / Roboto / Arial / system-ui 当 display 字体 | 衬线 display + sans body 配对，或漂亮的单字体 |
+| 圆角卡片 + 左侧彩色 border accent | 诚实的边界 / 无边界 / 满版 |
+| 每段标题配 emoji（📍✈️📷）| 字体本身的 weight / size 担任视觉锚 |
+| 居中对齐所有内容 | 视觉层级，焦点引导 |
+| 散落 micro-interactions（每个按钮都 hover 弹起）| 一次 well-orchestrated 的页面入场 |
+| **每次都用同样的设计** | NEVER converge——和上次故意不一样 |
+
+详见 `references/diary-design-aesthetics.md`。
 
 ## References 路由表
 
@@ -322,7 +378,9 @@ python3 scripts/cluster.py --in geocoded_photos.json --out diary_data.json
 | Nominatim 规范 / 限速 / User-Agent | `references/geocoding.md` |
 | 聚类阈值（500m / 2km）的来源与反例 | `references/clustering-rules.md` |
 | 叙述写作指南（感官开头 / 不虚构边界）| `references/narrative-craft.md` |
-| Leaflet 离线嵌入 / 轨迹线 API | `references/leaflet-inline.md` |
+| **HTML 必备元素清单 + Token 协议（写 HTML 前必读）** | `references/diary-html-essentials.md` |
+| **HTML 设计美学指南（反前端 slop / 风格方向库）** | `references/diary-design-aesthetics.md` |
+| Leaflet 离线嵌入 / 轨迹线 API / Token 注入点 | `references/leaflet-inline.md` |
 
 ## 跨 agent 环境适配
 
