@@ -38,5 +38,7 @@ output/
 .env
 *.key
 
-# Claude Code 本机用户配置（权限授权等，不跨机器通用）
-.claude/settings.local.json
+# Agent 本机用户配置（权限授权等，不跨机器通用）
+.claude/
+.omx/
+
