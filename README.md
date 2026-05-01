@@ -12,6 +12,8 @@ skills/
 │   └── SKILL.md
 ├── trip-design/                     ← skill package
 │   └── SKILL.md
+├── notebooklm-lit-review/            ← skill package
+│   └── SKILL.md
 ├── .gitignore
 ├── LICENSE
 ├── README.md
@@ -24,6 +26,7 @@ skills/
 |---|---|
 | [lecture-to-latex](lecture-to-latex/SKILL.md) | Convert lecture PDF slides to bilingual academic LaTeX notes |
 | [trip-design](trip-design/SKILL.md) | Turn travel photos into self-contained, narrative-driven HTML travel diaries |
+| [notebooklm-lit-review](notebooklm-lit-review/SKILL.md) | Query a NotebookLM knowledge base for literature-grounded answers with Harvard citations |
 
 ## Usage
 
