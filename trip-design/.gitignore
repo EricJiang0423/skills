@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Project: temp processing files
+tmp/
+*.geocode_cache.json
+geocode_cache.json
+raw_photos.json
+geocoded_photos.json
+diary_data.json
+
+# Project: generated output (keep template, ignore generated diaries)
+output/
+*.diary.html
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Secrets / env
+.env
+*.key
+
+# Agent 本机用户配置（权限授权等，不跨机器通用）
+.claude/
+.omx/
+
