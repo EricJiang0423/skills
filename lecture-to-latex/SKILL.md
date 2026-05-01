@@ -1,5 +1,5 @@
 ---
-name: pdf-lecture-to-latex
+name: lecture-to-latex
 description: Convert PDF lecture slides to bilingual (EN+CN) LaTeX structured notes with tables, formulas, and TikZ figures — designed for multi-week extensibility
 workflow_stage: writing
 compatibility:
@@ -14,7 +14,7 @@ tags:
   - academia
 ---
 
-# PDF Lecture to LaTeX Notes
+# Lecture to LaTeX Notes
 
 ## Purpose
 
