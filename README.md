@@ -14,6 +14,12 @@ skills/
 │   └── SKILL.md
 ├── notebooklm-lit-review/            ← skill package
 │   └── SKILL.md
+├── job-hunt-copilot/                 ← skill package
+│   ├── SKILL.md
+│   ├── resources/
+│   │   └── project_template.md
+│   └── docs/
+│       └── README.md
 ├── .gitignore
 ├── LICENSE
 ├── README.md
@@ -27,6 +33,7 @@ skills/
 | [lecture-to-latex](lecture-to-latex/SKILL.md) | Convert lecture PDF slides to bilingual academic LaTeX notes |
 | [trip-design](trip-design/SKILL.md) | Turn travel photos into self-contained, narrative-driven HTML travel diaries |
 | [notebooklm-lit-review](notebooklm-lit-review/SKILL.md) | Query a NotebookLM knowledge base for literature-grounded answers with Harvard citations |
+| [job-hunt-copilot](job-hunt-copilot/SKILL.md) | Tailor resumes, reframe project narratives, generate pitch scripts, and run mock interviews for job applications |
 
 ## Usage
 
