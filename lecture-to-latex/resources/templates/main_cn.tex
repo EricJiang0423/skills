@@ -1,0 +1,78 @@
+% Chinese main file template
+% Usage: xelatex -interaction=nonstopmode main_cn.tex (two passes)
+\documentclass[11pt,a4paper]{ctexart}
+
+% ---- CJK Font Setup (macOS) ----
+\setCJKmainfont{Songti SC}[
+    BoldFont       = {Songti SC},
+    BoldFeatures   = {Weight=Bold},
+    ItalicFont     = Kaiti SC,
+    BoldItalicFont = Kaiti SC
+]
+\setCJKsansfont{Heiti SC}[BoldFont=Heiti SC]
+\setCJKmonofont{STFangsong}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,multirow,graphicx,geometry}
+\usepackage{enumitem,xcolor,tikz,caption,subcaption}
+\usepackage{longtable,array,tabularx,float}
+\usepackage{fancyhdr}
+\usepackage{xurl}
+\usepackage{hyperref}
+\geometry{margin=1in}
+\setlength{\headheight}{14pt}
+
+% ---- Header / Footer ----
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize {{COURSE_CODE}}}
+\chead{\footnotesize \leftmark}
+\rhead{\footnotesize {{COURSE_TITLE_CN}}}
+\cfoot{\thepage}
+\fancypagestyle{plain}{%
+    \fancyhf{}%
+    \lhead{\footnotesize {{COURSE_CODE}}}%
+    \chead{\footnotesize \leftmark}%
+    \rhead{\footnotesize {{COURSE_TITLE_CN}}}%
+    \cfoot{\thepage}%
+}
+
+% ---- Theorem Environments (Chinese names) ----
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{example}{示例}[section]
+
+% ---- Keypoint Box ----
+\newsavebox{\keypointbox}
+\newenvironment{keypoint}[1][]{%
+    \vspace{4pt}
+    \begin{lrbox}{\keypointbox}
+    \begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule-2pt\relax}
+        \ifx\relax#1\relax\else\textbf{#1}\\[2pt]\fi
+}{%
+    \end{minipage}
+    \end{lrbox}
+    \noindent\fbox{\usebox{\keypointbox}}
+    \vspace{4pt}
+}
+
+% ---- Custom Commands ----
+\newcommand{\fx}{\textit{FX}}
+\newcommand{\bop}{\textit{BoP}}
+\newcommand{\ims}{\textit{IMS}}
+
+\title{ {{COURSE_TITLE_CN}} \\ {{COURSE_CODE}} -- 讲义笔记}
+\author{ {{LECTURER}} \\ {{UNIVERSITY_CN}}}
+\date{ {{TERM_CN}} }
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+\include{chapters-cn/week1_cn}
+\include{chapters-cn/week2_cn}
+\include{chapters-cn/week3_cn}
+\include{chapters-cn/week4_cn}
+\include{chapters-cn/week5_cn}
+\end{document}

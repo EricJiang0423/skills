@@ -1,0 +1,68 @@
+% English main file template
+% Usage: xelatex -interaction=nonstopmode main.tex (two passes)
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,multirow,graphicx,geometry}
+\usepackage{enumitem,xcolor,tikz,caption,subcaption}
+\usepackage{longtable,array,tabularx,float}
+\usepackage{fancyhdr}
+\usepackage{xurl}
+\usepackage{hyperref}
+\geometry{margin=1in}
+\setlength{\headheight}{14pt}
+
+% ---- Header / Footer ----
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize {{COURSE_CODE}}}
+\chead{\footnotesize \leftmark}
+\rhead{\footnotesize {{COURSE_TITLE_EN}}}
+\cfoot{\thepage}
+\fancypagestyle{plain}{%
+    \fancyhf{}%
+    \lhead{\footnotesize {{COURSE_CODE}}}%
+    \chead{\footnotesize \leftmark}%
+    \rhead{\footnotesize {{COURSE_TITLE_EN}}}%
+    \cfoot{\thepage}%
+}
+
+% ---- Theorem Environments ----
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{remark}{Remark}[section]
+\newtheorem{example}{Example}[section]
+
+% ---- Keypoint Box (uses lrbox to avoid brace-crossing errors) ----
+\newsavebox{\keypointbox}
+\newenvironment{keypoint}[1][]{%
+    \vspace{4pt}
+    \begin{lrbox}{\keypointbox}
+    \begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule-2pt\relax}
+        \ifx\relax#1\relax\else\textbf{#1}\\[2pt]\fi
+}{%
+    \end{minipage}
+    \end{lrbox}
+    \noindent\fbox{\usebox{\keypointbox}}
+    \vspace{4pt}
+}
+
+% ---- Custom Commands ----
+\newcommand{\fx}{\textit{FX}}
+\newcommand{\bop}{\textit{BoP}}
+\newcommand{\ims}{\textit{IMS}}
+
+\title{ {{COURSE_TITLE_EN}} \\ {{COURSE_CODE}} -- Lecture Notes}
+\author{ {{LECTURER}} \\ {{UNIVERSITY}}}
+\date{ {{TERM}} }
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+\include{chapters-en/week1}
+\include{chapters-en/week2}
+\include{chapters-en/week3}
+\include{chapters-en/week4}
+\include{chapters-en/week5}
+\end{document}

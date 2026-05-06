@@ -1,31 +1,38 @@
 ---
 name: lecture-to-latex
-description: Convert PDF lecture slides to bilingual (EN+CN) LaTeX structured notes with tables, formulas, and TikZ figures — designed for multi-week extensibility
+description: Convert lecture slides (PDF/PPTX) to bilingual EN+CN LaTeX structured notes. Supports tables, formulas, TikZ figures, theorem environments, fancyhdr headers. Multi-week course ready with chapters-en/ and chapters-cn/ subdirectory structure. Also generates bilingual parallel version. Triggers: lecture notes, slides to latex, pptx to latex, convert slides, 讲义, 笔记, 课件转LaTeX, 双语笔记, 幻灯片转LaTeX.
 workflow_stage: writing
 compatibility:
   - claude-code
 author: Eric Jiang
-version: 1.0.0
+version: 1.1.0
 tags:
   - LaTeX
   - pdf
+  - pptx
   - lecture-notes
   - bilingual
   - academia
+  - chinese
 ---
+# Lecture Slides → Bilingual LaTeX Notes
 
-# Lecture to LaTeX Notes
+## Quick Reference (Metadata Layer)
 
-## Purpose
-
-Convert university lecture PDF slides into comprehensive, well-structured LaTeX notes in both English and Chinese. The output is designed for multi-week courses with a main file that `\include{}`s each week as sub-files.
+- **Input**: PDF or PPTX lecture slides
+- **Output**: `chapters-en/weekN.tex` + `chapters-cn/weekN_cn.tex` + optional `main_bilingual.tex`
+- **Compile**: `xelatex` for both EN (`main.tex`) and CN (`main_cn.tex`)
+- **Font**: EN uses `fontspec`; CN uses `ctexart` + Songti SC / Kaiti SC / Heiti SC / STFangsong
+- **Structure**: `main.tex` → `\include{chapters-en/week1}` etc.
 
 ## When to Use
 
-- Converting PDF lecture slides to study notes
+- Converting lecture slides (PDF/PPTX) to study notes
 - Creating bilingual (EN + CN) academic notes from slides
 - Building a multi-week course note system with extensibility
-- Slides are image-based PDFs (no extractable text — needs OCR or `pdftotext`)
+- Slides are image-based or text-based — both supported
+- Need a bilingual paragraph-by-paragraph comparison version
+
 
 ## Instructions
 
