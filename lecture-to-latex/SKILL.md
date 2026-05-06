@@ -51,9 +51,19 @@ Convert university lecture PDF slides into comprehensive, well-structured LaTeX 
 
 ### Step 2: Extract All Content
 
-1. Extract the full PDF to a temporary text file:
+1. **For PDF slides:** Extract to a temporary text file:
    ```bash
    pdftotext "/path/to/lecture.pdf" "/tmp/lecture_full.txt"
+   ```
+
+2. **For PPTX slides:** Extract text via python-pptx or similar, save to `extracted-txt/week*_pptx_extracted.txt`. Keep these raw extracts as source reference.
+
+3. Save extracted content into `extracted-txt/` directory:
+   ```
+   extracted-txt/
+   ├── week1_pptx_extracted.txt
+   ├── week2_pptx_extracted.txt
+   └── ...
    ```
 
 2. Read the extracted text in chunks (500 lines at a time) using the Read tool. Pay attention to:
@@ -76,25 +86,49 @@ Create this file layout in the target `Note/` directory:
 
 ```
 Note/
-├── main.tex           # English main document
-├── main_cn.tex        # Chinese main document (uses ctexart)
-├── week1.tex          # English Week 1 notes
-├── week1_cn.tex       # Chinese Week 1 notes
-├── week2.tex          # (future weeks)
-├── week2_cn.tex       # (future weeks)
-└── ...
+├── main.tex              # English main document
+├── main_cn.tex           # Chinese main document (uses ctexart)
+├── chapters-en/          # English weekly chapter files
+│   ├── week1.tex
+│   ├── week2.tex
+│   └── ...
+├── chapters-cn/          # Chinese weekly chapter files
+│   ├── week1_cn.tex
+│   ├── week2_cn.tex
+│   └── ...
+└── *_extracted.txt       # Raw extracted text from slides (keep as source)
 ```
+
+**Why subdirectories**: Keeps root clean as more weeks are added. Each term may have 5-10 weeks × 2 languages = 10-20 chapter files.
 
 **`main.tex` (English) must include:**
 ```latex
 \documentclass[11pt,a4paper]{article}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
+\usepackage{fontspec}
 \usepackage{amsmath,amssymb,amsthm}
-\usepackage{booktabs,multirow,graphicx,hyperref,geometry}
+\usepackage{booktabs,multirow,graphicx,geometry}
 \usepackage{enumitem,xcolor,tikz,caption,subcaption}
 \usepackage{longtable,array,tabularx,float}
+\usepackage{fancyhdr}
+\usepackage{xurl}
+\usepackage{hyperref}
 \geometry{margin=1in}
+\setlength{\headheight}{14pt}
+
+% Header / footer
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize COURSE-CODE}
+\chead{\footnotesize \leftmark}
+\rhead{\footnotesize Course Title}
+\cfoot{\thepage}
+\fancypagestyle{plain}{%
+    \fancyhf{}%
+    \lhead{\footnotesize COURSE-CODE}%
+    \chead{\footnotesize \leftmark}%
+    \rhead{\footnotesize Course Title}%
+    \cfoot{\thepage}%
+}
 
 % Theorem environments
 \newtheorem{definition}{Definition}[section]
@@ -124,10 +158,12 @@ Note/
 \title{...}
 \begin{document}
 \maketitle \tableofcontents \newpage
-\include{week1}
-% \include{week2} ...预留到 week5
+\include{chapters-en/week1}
+% \include{chapters-en/week2} ...预留到 week5
 \end{document}
 ```
+
+**CRITICAL**: Use `fontspec` + `xelatex` (NOT `inputenc`/`fontenc` + `pdflatex`). The `fontspec` package is required for consistent Unicode support across both English and Chinese builds. `inputenc` and `T1 fontenc` are pdflatex-only and will cause errors with xelatex.
 
 **`main_cn.tex` (Chinese) must additionally include:**
 ```latex
@@ -142,6 +178,20 @@ Note/
 ]
 \setCJKsansfont{Heiti SC}[BoldFont=Heiti SC]
 \setCJKmonofont{STFangsong}
+
+% --- Same packages, theorem envs, keypoint box as main.tex ---
+% (copy the preamble from main.tex, but translate theorem names:
+%  Definition→定义, Theorem→定理, Remark→备注, Example→示例)
+
+% Chinese header
+\rhead{\footnotesize 课程中文名}
+
+% Include chapters from chapters-cn/
+\begin{document}
+\maketitle \tableofcontents \newpage
+\include{chapters-cn/week1_cn}
+...
+\end{document}
 ```
 
 ### Step 4: Write the Weekly LaTeX Files
@@ -213,10 +263,63 @@ Key differences from English:
 5. Use `\textbf{}` for bold — with the Songti SC Bold font setup it renders correctly
 6. TikZ node text: translate but keep coordinates identical
 
+**5a. English annotations for difficult/technical terms**
+
+For technical terms, jargon, and proper nouns, add the English original in parentheses on first occurrence:
+
+```latex
+风险预算（Risk Budgeting）是一种将风险...
+在险价值（Value at Risk, VaR）衡量...
+KMV 模型（Kealhofer, McQuown and Vasicek Model）...
+```
+
+Guidelines:
+- Add English annotation on **first occurrence** in each major section
+- Only annotate domain-specific terms (not general academic vocabulary)
+- For abbreviations, show both full form and abbreviation: `在险价值（Value at Risk, VaR）`
+- Mathematical symbols and equations do NOT need additional annotation
+
+**5b. Bilingual parallel version (`main_bilingual.tex`)**
+
+Create a third main file that includes both language versions, alternating English and Chinese per paragraph for direct comparison:
+
+```latex
+\documentclass[11pt,a4paper]{ctexart}
+% ... same font and package setup as main_cn.tex ...
+
+\begin{document}
+\maketitle \tableofcontents \newpage
+
+% Week 1
+\section{Week 1: Course Introduction}
+\subsection{Course Introduction}
+\subsubsection{Lecturer and Welcome}
+
+\begin{english}
+This course is taught by \textbf{Lucia Milena Murgia} (l.murgia@ucl.ac.uk).
+\end{english}
+\begin{chinese}
+本课程由 \textbf{Lucia Milena Murgia}（l.murgia@ucl.ac.uk）讲授。
+\end{chinese}
+
+% ... continue alternating for each paragraph ...
+\end{document}
+```
+
+The bilingual version uses two custom environments:
+```latex
+\newenvironment{english}{\begin{quote}\itshape}{\end{quote}}
+\newenvironment{chinese}{\begin{quote}}{\end{quote}}
+```
+
+Compile bilingual: `xelatex -interaction=nonstopmode main_bilingual.tex`
+
 ### Step 6: Compile and Fix
 
-1. **English:** `pdflatex -interaction=nonstopmode main.tex` (two passes)
+1. **English:** `xelatex -interaction=nonstopmode main.tex` (two passes)
 2. **Chinese:** `xelatex -interaction=nonstopmode main_cn.tex` (two passes)
+
+Both use `xelatex` — the English template uses `fontspec`, which requires xelatex (not pdflatex).
 
 3. **Check for issues:**
    ```bash
@@ -251,7 +354,7 @@ rm -f *.aux *.log *.out *.toc
 
 1. User: "Read Week2/Lecture2.pdf, create notes in Note/"
 2. Extract PDF → map structure → write `week2.tex` + `week2_cn.tex`
-3. Uncomment `\include{week2}` in both main files
+3. Uncomment `\include{chapters-en/week2}` in main.tex and `\include{chapters-cn/week2_cn}` in main_cn.tex
 4. Compile both → check log → fix overfull tables → recompile → clean intermediates
 5. Report: page counts and any notable issues
 
