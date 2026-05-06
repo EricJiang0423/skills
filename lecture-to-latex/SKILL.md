@@ -1,6 +1,6 @@
 ---
 name: lecture-to-latex
-description: Convert lecture slides (PDF/PPTX) to bilingual EN+CN LaTeX structured notes. Supports tables, formulas, TikZ figures, theorem environments, fancyhdr headers. Multi-week course ready with chapters-en/ and chapters-cn/ subdirectory structure. Also generates bilingual parallel version. Triggers: lecture notes, slides to latex, pptx to latex, convert slides, 讲义, 笔记, 课件转LaTeX, 双语笔记, 幻灯片转LaTeX.
+description: "Convert lecture slides (PDF/PPTX) to bilingual EN+CN LaTeX structured notes. Supports tables, formulas, TikZ figures, theorem environments, fancyhdr headers. Multi-week course ready with chapters-en/ and chapters-cn/ subdirectory structure. Also generates bilingual parallel version. Triggers: lecture notes, slides to latex, pptx to latex, convert slides, 讲义, 笔记, 课件转LaTeX, 双语笔记, 幻灯片转LaTeX."
 workflow_stage: writing
 compatibility:
   - claude-code
