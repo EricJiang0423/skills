@@ -10,8 +10,6 @@ A collection of AI coding-assistant skills targeting **Claude** and **Claude Cod
 skills/
 ├── lecture-to-latex/                ← skill package
 │   └── SKILL.md
-├── trip-design/                     ← skill package
-│   └── SKILL.md
 ├── notebooklm-lit-review/            ← skill package
 │   └── SKILL.md
 ├── job-hunt-copilot/                 ← skill package
@@ -31,7 +29,6 @@ skills/
 | Skill | Description |
 |---|---|
 | [lecture-to-latex](lecture-to-latex/SKILL.md) | Convert lecture PDF slides to bilingual academic LaTeX notes |
-| [trip-design](trip-design/SKILL.md) | Turn travel photos into self-contained, narrative-driven HTML travel diaries |
 | [notebooklm-lit-review](notebooklm-lit-review/SKILL.md) | Query a NotebookLM knowledge base for literature-grounded answers with Harvard citations |
 | [job-hunt-copilot](job-hunt-copilot/SKILL.md) | Tailor resumes, reframe project narratives, generate pitch scripts, and run mock interviews for job applications |
 
@@ -44,7 +41,6 @@ invoke it in a conversation:
 
 ```
 Use $lecture-to-latex to rebuild my lecture slides as academic bilingual LaTeX notes.
-Use $trip-design to turn my travel photos into a diary.
 ```
 
 ### Claude (API / claude.ai)

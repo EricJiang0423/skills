@@ -10,8 +10,6 @@
 skills/
 ├── lecture-to-latex/                ← skill 包
 │   └── SKILL.md
-├── trip-design/                     ← skill 包
-│   └── SKILL.md
 ├── notebooklm-lit-review/            ← skill 包
 │   └── SKILL.md
 ├── job-hunt-copilot/                 ← skill 包
@@ -31,7 +29,6 @@ skills/
 | Skill | 说明 |
 |---|---|
 | [lecture-to-latex](lecture-to-latex/SKILL.md) | 将 lecture PDF 幻灯片重建为双语学术 LaTeX 讲义 |
-| [trip-design](trip-design/SKILL.md) | 将旅行照片转化为自包含、有叙事感的 HTML 旅行日记 |
 | [notebooklm-lit-review](notebooklm-lit-review/SKILL.md) | 查询 NotebookLM 知识库，获取带 Harvard 引用的文献支撑答案 |
 | [job-hunt-copilot](job-hunt-copilot/SKILL.md) | 求职全程助手：简历定制、项目叙事重构、面试讲稿生成、模拟面试 |
 
@@ -43,7 +40,6 @@ skills/
 
 ```
 Use $lecture-to-latex to rebuild my lecture slides as academic bilingual LaTeX notes.
-Use $trip-design to turn my travel photos into a diary.
 ```
 
 ### Claude（API / claude.ai）
