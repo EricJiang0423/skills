@@ -1,6 +1,7 @@
 % English main file template
 % Usage: xelatex -interaction=nonstopmode main.tex (two passes)
 \documentclass[11pt,a4paper]{article}
+
 \usepackage{fontspec}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs,multirow,graphicx,geometry}
@@ -9,22 +10,34 @@
 \usepackage{fancyhdr}
 \usepackage{xurl}
 \usepackage{hyperref}
-\geometry{margin=1in}
-\setlength{\headheight}{14pt}
+
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\geometry{margin=1in, headheight=15pt, headsep=8mm}
+\setlist[itemize]{leftmargin=1.8em,itemsep=2pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=2.2em,itemsep=2pt,topsep=4pt}
+\setlist[description]{style=nextline,leftmargin=2em,itemsep=2pt,topsep=4pt}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!50!black,
+    urlcolor=blue!50!black,
+    citecolor=blue!50!black
+}
 
 % ---- Header / Footer ----
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\footnotesize {{COURSE_CODE}}}
-\chead{\footnotesize \leftmark}
-\rhead{\footnotesize {{COURSE_TITLE_EN}}}
-\cfoot{\thepage}
+\fancyhead[L]{\footnotesize {{COURSE_CODE}}}
+\fancyhead[C]{\footnotesize \leftmark}
+\fancyhead[R]{\footnotesize {{SHORT_COURSE_TITLE_EN}}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\sectionmark}[1]{\markboth{Week \thesection}{}}
 \fancypagestyle{plain}{%
     \fancyhf{}%
-    \lhead{\footnotesize {{COURSE_CODE}}}%
-    \chead{\footnotesize \leftmark}%
-    \rhead{\footnotesize {{COURSE_TITLE_EN}}}%
-    \cfoot{\thepage}%
+    \fancyhead[L]{\footnotesize {{COURSE_CODE}}}%
+    \fancyhead[C]{\footnotesize \leftmark}%
+    \fancyhead[R]{\footnotesize {{SHORT_COURSE_TITLE_EN}}}%
+    \fancyfoot[C]{\thepage}%
 }
 
 % ---- Theorem Environments ----

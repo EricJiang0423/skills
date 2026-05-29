@@ -1,16 +1,16 @@
 % Bilingual parallel version template
 % Usage: xelatex -interaction=nonstopmode main_bilingual.tex (two passes)
-\documentclass[11pt,a4paper]{ctexart}
+\documentclass[11pt,a4paper,fontset=none]{ctexart}
 
 % ---- CJK Font Setup (macOS) ----
 \setCJKmainfont{Songti SC}[
     BoldFont       = {Songti SC},
     BoldFeatures   = {Weight=Bold},
-    ItalicFont     = Kaiti SC,
-    BoldItalicFont = Kaiti SC
+    ItalicFont     = {Songti SC},
+    BoldItalicFont = {Songti SC}
 ]
 \setCJKsansfont{Heiti SC}[BoldFont=Heiti SC]
-\setCJKmonofont{STFangsong}
+\setCJKmonofont{Songti SC}
 
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs,multirow,graphicx,geometry}
@@ -19,20 +19,39 @@
 \usepackage{fancyhdr}
 \usepackage{xurl}
 \usepackage{hyperref}
-\geometry{margin=1in}
-\setlength{\headheight}{14pt}
+
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\geometry{margin=1in, headheight=15pt, headsep=8mm}
+\setlength{\parindent}{0pt}
+\setlist[itemize]{leftmargin=1.8em,itemsep=2pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=2.2em,itemsep=2pt,topsep=4pt}
+\setlist[description]{style=nextline,leftmargin=2em,itemsep=2pt,topsep=4pt}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!50!black,
+    urlcolor=blue!50!black,
+    citecolor=blue!50!black
+}
 
 % ---- Bilingual environments ----
 \newenvironment{english}{\begin{quote}\itshape}{\end{quote}}
-\newenvironment{chinese}{\begin{quote}}{\end{quote}}
+\newenvironment{cnblock}{\begin{quote}}{\end{quote}}
 
 % ---- Header / Footer ----
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\footnotesize {{COURSE_CODE}}}
-\chead{\footnotesize \leftmark}
-\rhead{\footnotesize {{COURSE_TITLE_CN}} (Bilingual)}
-\cfoot{\thepage}
+\fancyhead[L]{\footnotesize {{COURSE_CODE}}}
+\fancyhead[C]{\footnotesize {{SHORT_BILINGUAL_TITLE}}}
+\fancyhead[R]{\footnotesize Bilingual Notes}
+\fancyfoot[C]{\thepage}
+\fancypagestyle{plain}{%
+    \fancyhf{}%
+    \fancyhead[L]{\footnotesize {{COURSE_CODE}}}%
+    \fancyhead[C]{\footnotesize {{SHORT_BILINGUAL_TITLE}}}%
+    \fancyhead[R]{\footnotesize Bilingual Notes}%
+    \fancyfoot[C]{\thepage}%
+}
 
 % ---- Theorem Environments ----
 \newtheorem{definition}{Definition / 定义}[section]
@@ -65,5 +84,10 @@
 \maketitle
 \tableofcontents
 \newpage
-% Bilingual chapters: each paragraph alternates \begin{english}...\end{english} followed by \begin{chinese}...\end{chinese}
+% Each bilingual chapter alternates \begin{english}...\end{english} with \begin{cnblock}...\end{cnblock}.
+\include{chapters-bilingual/week1_bilingual}
+\include{chapters-bilingual/week2_bilingual}
+\include{chapters-bilingual/week3_bilingual}
+\include{chapters-bilingual/week4_bilingual}
+\include{chapters-bilingual/week5_bilingual}
 \end{document}
